@@ -46,12 +46,12 @@
     - name: copy app
       copy:
         src: ../simple-automated-deployment
-        dest: "~"
+        dest: /home/mansi
         owner: mansi
         mode: u=rw,g=r,o=r
 
     - name: destroy docker compose
-      command: docker compose -f ~/simple-automated-deployment/docker-compose.yml down -v 
+      command: docker compose -f /home/mansi/simple-automated-deployment/docker-compose.yml down -v 
 
     - name: run app
-      command: docker compose -f ~/simple-automated-deployment/docker-compose.yml up -d 
+      command: docker compose -f /home/mansi/simple-automated-deployment/docker-compose.yml up -d 
