@@ -1,0 +1,57 @@
+---
+- name: automate dockerized web app
+  hosts: node
+  become: yes
+  tasks:
+    - name: install docker
+      apt:
+        name: 
+          - docker-ce
+          - docker-ce-cli 
+          - containerd.io 
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: enable and start docker
+      service:
+        name: docker
+        state: started
+        enabled: true
+      register: docker_status
+
+    - name: docker status 
+      debug:
+        var: docker_status
+
+    - name: Create docker group
+      group:
+        name: docker
+        state: present
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: show docker compose
+      command: docker compose version
+      register: docker_compose_version
+
+    - name: docker compose version
+      debug:
+        msg: "{{ docker_compose_version.stdout }}"
+
+    - name: copy app
+      copy:
+        src: /home/mansi/project
+        dest: /home/mansi
+        owner: mansi
+        mode: u=rw,g=r,o=r
+
+    - name: destroy docker compose
+      command: docker compose -f /home/mansi/project/docker-compose.yml down -v 
+
+    - name: run app
+      command: docker compose -f /home/mansi/project/docker-compose.yml up -d 
